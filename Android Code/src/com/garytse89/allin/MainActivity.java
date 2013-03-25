@@ -258,7 +258,7 @@ public class MainActivity extends Activity {
   private void sendData(String message) {
     byte[] msgBuffer = message.getBytes();
   
-    Log.d(TAG, "...Send data: " + message + "...");
+    //Log.d(TAG, "...Send data: " + message + "...");
   
     try {
       outStream.write(msgBuffer);
