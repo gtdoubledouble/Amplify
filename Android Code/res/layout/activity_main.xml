@@ -26,4 +26,14 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="50dp" />
 
+    <TextView
+        android:id="@+id/volumeBars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/volumeLevel"
+        android:layout_centerHorizontal="true"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="50dp" />
+
 </RelativeLayout>

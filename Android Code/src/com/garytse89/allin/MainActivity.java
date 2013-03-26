@@ -25,6 +25,9 @@ import android.widget.Toast;
 
   
 public class MainActivity extends Activity {
+  
+  private static String volumeVisual = "";
+	
   private static final String TAG = "bluetooth1";
   private PowerManager.WakeLock wl;
   
@@ -47,15 +50,16 @@ public class MainActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-   
+    Toast.makeText(getBaseContext(), "Loading...", Toast.LENGTH_LONG).show();
     setContentView(R.layout.activity_main);
-  
+    
     // Wakelock
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNjfdhotDimScreen");
     
     TextView volumeLevel = (TextView) findViewById(R.id.volumeLevel);
     TextView status = (TextView) findViewById(R.id.status);
+    TextView volumeBars = (TextView) findViewById(R.id.volumeBars);
     
     btAdapter = BluetoothAdapter.getDefaultAdapter();
     checkBTState();
@@ -86,7 +90,14 @@ public class MainActivity extends Activity {
                     	// Get the volume from 0 to 255 in 'int'
                     	double volume = 10 * mSensor.getTheAmplitude() / 32768;
                     	int volumeToSend = (int) volume;
-            	        updateTextView(R.id.volumeLevel, "Volume: " + String.valueOf(volumeToSend)); 
+            	        updateTextView(R.id.volumeLevel, "Volume: " + String.valueOf(volumeToSend));
+            	        
+            	        volumeVisual = "";
+            	        for( int i=0; i<volumeToSend; i++){
+            	        	volumeVisual += "|";
+            	        }
+            	        
+            	        updateTextView(R.id.volumeBars, "Volume: " + String.valueOf(volumeVisual));
             	        //Log.d("Amplify",String.valueOf(volumeToSend));
             	        sendData(Integer.toString(volumeToSend));
             	        updateTextView(R.id.status, "Bluetooth Status: Sending values...");
@@ -118,17 +129,17 @@ public class MainActivity extends Activity {
   public void onResume() {
     super.onResume();
     wl.acquire();
+    
+    updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
     // Sound based code
     try {
-		start();
+    	mSensor.start();
+    	Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
 	} catch (IllegalStateException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
+		Toast.makeText(getBaseContext(), "On resume, sound sensor messed up...", Toast.LENGTH_LONG).show();
 		e.printStackTrace();
 	}
-    //
     
     
     Log.d(TAG, "...onResume - try connect...");
@@ -178,6 +189,8 @@ public class MainActivity extends Activity {
   
   @Override
   public void onPause() {
+	  
+	updateTextView(R.id.status, "Paused.");
     super.onPause();
     wl.release(); // Wakelock
     Log.d(TAG, "...In onPause()...");
