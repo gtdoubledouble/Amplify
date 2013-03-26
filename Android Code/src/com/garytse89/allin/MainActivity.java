@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import com.garytse89.Amplify.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -27,14 +28,11 @@ public class MainActivity extends Activity {
   private static final String TAG = "bluetooth1";
   private PowerManager.WakeLock wl;
   
-  
   private Handler handler;
   
   private SoundMeter mSensor;
-  private TextView val;
-  
-  Button btnOn, btnOff;
-    
+  private TextView volumeLevel, status;
+      
   private BluetoothAdapter btAdapter = null;
   private BluetoothSocket btSocket = null;
   private OutputStream outStream = null;
@@ -56,88 +54,51 @@ public class MainActivity extends Activity {
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNjfdhotDimScreen");
     
+    TextView volumeLevel = (TextView) findViewById(R.id.volumeLevel);
+    TextView status = (TextView) findViewById(R.id.status);
     
-    btnOn = (Button) findViewById(R.id.btnOn);
-    btnOff = (Button) findViewById(R.id.btnOff);
-      
     btAdapter = BluetoothAdapter.getDefaultAdapter();
     checkBTState();
-    
-    btnOn.setOnClickListener(new OnClickListener() {
-        public void onClick(View v) {
-          sendData("1");
-          Toast.makeText(getBaseContext(), "Turn on LED", Toast.LENGTH_SHORT).show();
-        }
-      });
-    
-      btnOff.setOnClickListener(new OnClickListener() {
-        public void onClick(View v) {
-          sendData("0");
-          Toast.makeText(getBaseContext(), "Turn off LED", Toast.LENGTH_SHORT).show();
-        }
-      });
-    
-    
+        
     // Sound-based code
     
-    TextView val = (TextView) this.findViewById(R.id.val);
-   
     mSensor = new SoundMeter();
-  
+        
     try {
     	mSensor.start();
+    	Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
 	} catch (IllegalStateException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}        
-    
-    // Starts the main running "loop"/thread
-    //Thread myThread = new Thread(mPollTask);
-    //myThread.start();
-    //
-    
-    
+       
     handler = new Handler();
-    final Runnable r = new Runnable() {
+    
+ final Runnable r = new Runnable() {
 	    
 		public void run() {
 	    	//mSensor.start();
-	    	Log.d("Amplify","Sensor initiated.");
-	    	
-	    	    	
-	    	/**
-	    	
-	    	**/
+			Log.d("Amplify","HERE");	
+			Toast.makeText(getBaseContext(), "Working!", Toast.LENGTH_LONG).show();
 	    		runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                    	
-                    		/**
-                    		try {
-                				Thread.sleep(1000);
-                			} catch (InterruptedException e) {
-                				// TODO Auto-generated catch block
-                				e.printStackTrace();
-                			}
-                    		**/
-                    	Log.d("Amplify","runOnUiThread");
                     	// Get the volume from 0 to 255 in 'int'
-                    	double volume = 9 * mSensor.getTheAmplitude() / 32768;
+                    	double volume = 10 * mSensor.getTheAmplitude() / 32768;
                     	int volumeToSend = (int) volume;
-            	        updateTextView(String.valueOf(volumeToSend)); 
-            	        Log.d("Amplify",String.valueOf(volumeToSend));
+            	        updateTextView(R.id.volumeLevel, "Volume: " + String.valueOf(volumeToSend)); 
+            	        //Log.d("Amplify",String.valueOf(volumeToSend));
             	        sendData(Integer.toString(volumeToSend));
+            	        updateTextView(R.id.status, "Bluetooth Status: Sending values...");
             	        handler.postDelayed(this, 250); // amount of delay between every cycle of volume level detection + sending the data  out
                     }
                 });
-	
-	    		
-	        
-	    	
 	    	}
 		 };
 		 
-		 handler.postDelayed(r, 1000);
+  // Is this line necessary? --- YES IT IS, or else the loop never runs
+  // this tells Java to run "r"
+  handler.postDelayed(r, 250);
     
   }
    
@@ -192,9 +153,11 @@ public class MainActivity extends Activity {
     
     // Establish the connection.  This will block until it connects.
     Log.d(TAG, "...Connecting...");
+    updateTextView(R.id.status, "Bluetooth Status: Connecting...");
     try {
       btSocket.connect();
       Log.d(TAG, "...Connection ok...");
+      updateTextView(R.id.status, "Bluetooth Status: Connected");
     } catch (IOException e) {
       try {
         btSocket.close();
@@ -205,7 +168,7 @@ public class MainActivity extends Activity {
       
     // Create a data stream so we can talk to server.
     Log.d(TAG, "...Create Socket...");
-  
+    updateTextView(R.id.status, "Bluetooth Status: Trying / Creating socket...");
     try {
       outStream = btSocket.getOutputStream();
     } catch (IOException e) {
@@ -242,6 +205,7 @@ public class MainActivity extends Activity {
     } else {
       if (btAdapter.isEnabled()) {
         Log.d(TAG, "...Bluetooth ON...");
+        updateTextView(R.id.status, "Bluetooth Status: ON");
       } else {
         //Prompt user to turn on Bluetooth
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -272,15 +236,9 @@ public class MainActivity extends Activity {
     }
   }
 
+    public void updateTextView(int text_id, String toThis) {
 
-  	// Sound-related code starts here
-
-	
-   
-
-    public void updateTextView(String toThis) {
-
-        TextView val = (TextView) findViewById(R.id.val);
+        TextView val = (TextView) findViewById(text_id);
         val.setText(toThis);
 
         return;
@@ -295,7 +253,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void sleep() {
-	        mSensor.stop();
+	    mSensor.stop();
 	}
     
 }

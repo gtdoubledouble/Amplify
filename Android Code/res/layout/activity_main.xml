@@ -9,36 +9,20 @@
     tools:context=".MainActivity" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_world" />
 
-    <Button
-        android:id="@+id/btnOn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/textView1"
-        android:text="Button" />
-
-    <Button
-        android:id="@+id/btnOff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btnOn"
-        android:layout_alignLeft="@+id/btnOn"
-        android:layout_marginBottom="55dp"
-        android:text="Button" />
-
     <TextView
-        android:id="@+id/val"
+        android:id="@+id/volumeLevel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnOff"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="112dp"
-        android:text="Medium Text"
+        android:layout_alignLeft="@+id/status"
+        android:layout_below="@+id/status"
+        android:layout_marginTop="164dp"
+        android:gravity="center"
+        android:text="Volume Level: n/a"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="50dp" />
 
